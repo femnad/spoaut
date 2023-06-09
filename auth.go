@@ -210,7 +210,7 @@ func (a auther) authenticate(ctx context.Context) (*spotify.Client, error) {
 	}()
 
 	authUrl := a.auth.AuthURL(state)
-	fmt.Println("Visit the following page:", authUrl)
+	fmt.Printf("Visit: %s\n", authUrl)
 
 	result := <-authResultCh
 	resultErr := result.err
@@ -220,12 +220,11 @@ func (a auther) authenticate(ctx context.Context) (*spotify.Client, error) {
 
 	client = spotify.New(a.auth.Client(ctx, result.token))
 
-	user, err := client.CurrentUser(ctx)
+	// Test authentication.
+	_, err = client.CurrentUser(ctx)
 	if err != nil {
 		return &spotify.Client{}, err
 	}
-
-	log.Printf("Logged as %s", user.ID)
 
 	err = a.saveToken(*result.token)
 	if err != nil {
