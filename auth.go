@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"io"
 	"log"
 	"net/http"
@@ -81,27 +80,8 @@ func getAuthenticator(config Config) (*spotifyauth.Authenticator, error) {
 	return spotifyauth.New(authOptions...), nil
 }
 
-func readConfig(configFile string) (Config, error) {
-	var config Config
-	data, err := os.ReadFile(configFile)
-	if err != nil {
-		return config, err
-	}
-
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		return config, err
-	}
-
-	return config, nil
-}
-
-func newAuther(configFile string) (auther, error) {
+func newAuther(config Config) (auther, error) {
 	var a auther
-	config, err := readConfig(configFile)
-	if err != nil {
-		return a, err
-	}
 
 	appCfg, err := appconfig.Get(config.ConfigFile)
 	if err != nil {
@@ -278,10 +258,10 @@ func (a auther) getClient(ctx context.Context) (*spotify.Client, error) {
 	return c, nil
 }
 
-func Client(ctx context.Context, configFile string) (*spotify.Client, error) {
+func Client(ctx context.Context, config Config) (*spotify.Client, error) {
 	var c *spotify.Client
 
-	a, err := newAuther(configFile)
+	a, err := newAuther(config)
 	if err != nil {
 		return c, err
 	}
